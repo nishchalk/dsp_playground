@@ -9,3 +9,11 @@ blog](http://python-for-signal-processing.blogspot.com) where you can read the f
 The theory is accompanied by computational examples written in [IPython 3](http://ipython.org/).
 
 The sources of the notebooks, as well as installation and usage instructions can be found on [GitHub](https://github.com/nishchalk/dsp_playground).
+
+
+##How to create interactive notebooks
+1. Write code in jupyter notebook using the [nbinterct](https://www.nbinteract.com/) format.
+	* import nbinteract module `from ipywidgets import interact`
+	* write the code snippet as a function and give functions for to interact module using `interact(<function_name>, <p1>(:range),<p2>(:range))`
+2. Convert the notebook using command `nbinteract <notebook_name>.ipynb`
+3. Done!
