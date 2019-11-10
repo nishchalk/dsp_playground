@@ -1,4 +1,4 @@
-# Digitl Signal Processing Playground
+# Digital Signal Processing Playground
 
 This is a group project for the course 'Foundations of Educational Technology' by Prof.Kaushal Bhagat.
 You can find the ppt [here](https://docs.google.com/presentation/d/1Dbipr_cSxPfVV9mUocxhtRKsTAuKE0nQO6y44M568G4/edit?usp=sharing)
@@ -11,7 +11,7 @@ The theory is accompanied by computational examples written in [IPython 3](http:
 The sources of the notebooks, as well as installation and usage instructions can be found on [GitHub](https://github.com/nishchalk/dsp_playground).
 
 
-##How to create interactive notebooks
+## How to create interactive notebooks
 1. Write code in jupyter notebook using the [nbinterct](https://www.nbinteract.com/) format.
 	* import nbinteract module `from ipywidgets import interact`
 	* write the code snippet as a function and give functions for to interact module using `interact(<function_name>, <p1>(:range),<p2>(:range))`
