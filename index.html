@@ -1,11 +1,13 @@
-
-
 <!DOCTYPE html>
 <html>
 <head><meta charset="utf-8" />
 
+<title>index</title>
 
-<title>1.Sampling_Theorem</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
 
 <style type="text/css">
     /*!
@@ -13070,17 +13072,20 @@ div#notebook {
   div.cell {
     display: block;
     page-break-inside: avoid;
-  }
-  div.output_wrapper {
+  } 
+  div.output_wrapper { 
     display: block;
-    page-break-inside: avoid;
+    page-break-inside: avoid; 
   }
-  div.output {
+  div.output { 
     display: block;
-    page-break-inside: avoid;
+    page-break-inside: avoid; 
   }
 }
 </style>
+
+<!-- Custom stylesheet, it must be in the same directory as the html file -->
+<link rel="stylesheet" href="custom.css">
 
 <!-- Loading mathjax macro -->
 <!-- Load mathjax -->
@@ -13103,744 +13108,94 @@ div#notebook {
         }
     });
     </script>
-    <!-- End of mathjax configuration -->
-
-<style>
-        .cell.nbinteract-left {
-            width: 50%;
-            float: left;
-        }
-
-        .cell.nbinteract-right {
-            width: 50%;
-            float: right;
-        }
-
-        .cell.nbinteract-hide_in > .input {
-            display: none;
-        }
-
-        .cell.nbinteract-hide_out > .output_wrapper {
-            display: none;
-        }
-
-        .cell:after {
-          content: "";
-          display: table;
-          clear: both;
-        }
-
-        div.output_subarea {
-            max-width: initial;
-        }
-
-        .jp-OutputPrompt {
-            display: none;
-        }
-    </style></head>
+    <!-- End of mathjax configuration --></head>
 <body>
   <div tabindex="-1" id="notebook" class="border-box-sizing">
-    <div class="container">
-      
+    <div class="container" id="notebook-container">
 
-
-
-  <div class="cell text_cell">
-    <button class="js-nbinteract-widget">
-      Loading widgets...
-    </button>
-  </div>
-
-
-
-<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Investigating-The-Sampling-Theorem">Investigating The Sampling Theorem<a class="anchor-link" href="#Investigating-The-Sampling-Theorem">&#182;</a></h1>
+<h1 id="Digital-Signal-Processing">Digital Signal Processing<a class="anchor-link" href="#Digital-Signal-Processing">&#182;</a></h1><p>This collection of <a href="https://jupyter.org/">jupyter</a> notebooks for the book "Python for Signal Processing", introduces various topics of <a href="https://en.wikipedia.org/wiki/Digital_signal_processing">Digital Signal Processing</a>. This book is <a href="http://python-for-signal-processing.blogspot.com">available as a
+blog</a> where you can read the formatted notebooks and comment further.</p>
+<p>The theory is accompanied by computational examples written in <a href="http://ipython.org/">IPython 3</a>.</p>
+<p>The sources of the notebooks, as well as installation and usage instructions can be found on <a href="https://github.com/nishchalk/dsp_playground">GitHub</a>.</p>
+
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>In this section, we investigate the implications of the sampling theorem. Here is the usual statement of the theorem from wikipedia:</p>
-<p><em>"If a function $x(t)$ contains no frequencies higher than B hertz, it is completely determined by giving its ordinates at a series of points spaced 1/(2B) seconds apart."</em></p>
-<p>Since a function $x(t)$ is a function from the real line to the real line, there are uncountably many points between any two ordinates, so sampling is a massive reduction of data since it only takes a tiny number of points to completely characterize the function. This is a powerful idea worth exploring. In fact, we have seen this idea of reducing a function to a discrete set of numbers before in Fourier series expansions where (for periodic $x(t)$)</p>
-<p>$ a_n = \frac{1}{T} \int^{T}_0 x(t) \exp (-j \omega_n t )dt $</p>
-<p>with corresponding reconstruction as:</p>
-<p>$ x(t) = \sum_k a_n \exp( j \omega_n t) $</p>
-<p>But here we are generating discrete points $a_n$ by integrating over the <strong>entire</strong> function $x(t)$, not just evaluating it at a single point. This means we are collecting information about the entire function to compute a single discrete point $a_n$, whereas with sampling we are just taking individual points in isolation.</p>
-<p>Let's come at this the other way: suppose we are given a set of samples $[x_1,x_2,..,x_N]$ and we are then told to reconstruct the function. What would we do? This is the kind of question seldom asked because we typically sample, filter, and then do something else without trying to reconstruct the function from the samples directly.</p>
-<p>Returning to our reconstruction challenge, perhaps the most natural thing to do is draw a straight line between each of the points as in linear interpolation. The next block of code takes samples of the $sin$ over a single period and draws a line between sampled ordinates.</p>
-
-</div>
-</div>
-</div>
-
-  
-
-  <div class="
-      cell border-box-sizing code_cell rendered">
-    <div class="input">
-
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">ipywidgets</span> <span class="k">import</span> <span class="n">interact</span>
-<span class="o">%</span><span class="k">pylab</span> inline
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>Populating the interactive namespace from numpy and matplotlib
-</pre>
-</div>
-</div>
-
-</div>
-</div>
-
-  </div>
-
-  
-
-  <div class="
-      cell border-box-sizing code_cell rendered">
-    <div class="input">
-
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">createSine</span><span class="p">(</span><span class="n">signal_frequency</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">sampling_rate</span><span class="o">=</span><span class="mf">20.0</span><span class="p">):</span>
-    <span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
-
-    <span class="n">f</span> <span class="o">=</span> <span class="n">signal_frequency</span>  <span class="c1"># Hz, signal frequency</span>
-    <span class="n">fs</span> <span class="o">=</span> <span class="n">sampling_rate</span> <span class="c1"># Hz, sampling rate (ie. &gt;= 2*f) </span>
-    <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="o">+</span><span class="mi">1</span><span class="o">/</span><span class="n">fs</span><span class="p">,</span><span class="mi">1</span><span class="o">/</span><span class="n">fs</span><span class="p">)</span> <span class="c1"># sample interval, symmetric for convenience later</span>
-    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">f</span><span class="o">*</span><span class="n">t</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="s1">&#39;o-&#39;</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;amplitude&#39;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
-
-    <span class="c1"># fig.savefig(&#39;figure_00@.png&#39;, bbox_inches=&#39;tight&#39;, dpi=300)</span>
-
-<span class="c1"># plt.figure()</span>
-<span class="n">interact</span><span class="p">(</span><span class="n">createSine</span><span class="p">,</span> <span class="n">signal_frequency</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span> <span class="n">sampling_rate</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">40</span><span class="p">))</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    
-
-
-
-  <div class="output_subarea output_widget_view ">
-    <button class="js-nbinteract-widget">
-      Loading widgets...
-    </button>
-  </div>
-
-</div>
-
-<div class="output_area">
-
-    
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>&lt;function __main__.createSine(signal_frequency=1.0, sampling_rate=20.0)&gt;</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-  </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>In this plot, notice how near the extremes of the $sin$ at $t=1/(4f)$ and $t=3/(4 f)$, we are taking the same density of points since the sampling theorem makes no requirement on <em>where</em> we should sample as long as we sample at a regular intervals. This means that on the up and down slopes of the $sin$, which are obviously linear-looking and where a linear approximation is a good one, we are taking the same density of samples as near the curvy peaks. Here's a bit of code that zooms in to the first peak to illustrate this.</p>
-
-</div>
-</div>
-</div>
-
-  
-
-  <div class="
-      cell border-box-sizing code_cell rendered">
-    <div class="input">
-
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">pieceWise</span><span class="p">(</span><span class="n">signal_frequency</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">sampling_rate</span><span class="o">=</span><span class="mf">20.0</span><span class="p">):</span>
-    <span class="n">f</span> <span class="o">=</span> <span class="n">signal_frequency</span>
-    <span class="n">fs</span> <span class="o">=</span> <span class="n">sampling_rate</span>
-    <span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
-    <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="o">+</span><span class="mi">1</span><span class="o">/</span><span class="n">fs</span><span class="p">,</span><span class="mi">1</span><span class="o">/</span><span class="n">fs</span><span class="p">)</span> <span class="c1"># sample interval, symmetric</span>
-    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">f</span><span class="o">*</span><span class="n">t</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="s1">&#39;o-&#39;</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span> <span class="n">xmin</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="n">f</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="o">/</span><span class="n">fs</span><span class="o">*</span><span class="mi">3</span><span class="p">,</span> <span class="n">xmax</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="n">f</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="o">/</span><span class="n">fs</span><span class="o">*</span><span class="mi">3</span><span class="p">,</span> <span class="n">ymin</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">ymax</span> <span class="o">=</span> <span class="mf">1.1</span> <span class="p">)</span>
-    <span class="c1"># fig.savefig(&#39;figure_00@.png&#39;, bbox_inches=&#39;tight&#39;, dpi=300)</span>
-    
-<span class="n">interact</span><span class="p">(</span><span class="n">pieceWise</span><span class="p">,</span> <span class="n">signal_frequency</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span> <span class="n">sampling_rate</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">40</span><span class="p">))</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    
-
-
-
-  <div class="output_subarea output_widget_view ">
-    <button class="js-nbinteract-widget">
-      Loading widgets...
-    </button>
-  </div>
-
-</div>
-
-<div class="output_area">
-
-    
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>&lt;function __main__.pieceWise(signal_frequency=1.0, sampling_rate=20.0)&gt;</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-  </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>To drive this point home (and create some cool matplotlib plots), we can construct the piecewise linear interpolant and compare the quality of the approximation using <code>numpy.piecewise</code>:</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Now, we can examine the squared errors in the interpolant. The following snippet plots the $sin$ and with the filled-in error of the linear interpolant.</p>
-
-</div>
-</div>
-</div>
-
-  
-
-  <div class="
-      cell border-box-sizing code_cell rendered">
-    <div class="input">
-
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">errorPiecewise</span><span class="p">(</span><span class="n">signal_frequency</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">sampling_rate</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">number_of_samples</span><span class="o">=</span><span class="mi">40</span><span class="p">):</span>
-    <span class="n">f</span> <span class="o">=</span> <span class="n">signal_frequency</span>
-    <span class="n">fs</span> <span class="o">=</span> <span class="n">sampling_rate</span>
-    <span class="n">l</span> <span class="o">=</span> <span class="n">number_of_samples</span>
-    <span class="n">t</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="n">fs</span><span class="p">,</span><span class="n">fs</span><span class="p">,</span><span class="n">l</span><span class="p">)</span> <span class="c1"># redefine this here for convenience</span>
-    <span class="n">interval</span><span class="o">=</span><span class="p">[]</span> <span class="c1"># piecewise domains</span>
-    <span class="n">apprx</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># line on domains</span>
-    <span class="c1"># build up points *evenly* inside of intervals</span>
-<span class="c1">#     print(t)</span>
-    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">f</span><span class="o">*</span><span class="n">t</span><span class="p">)</span>
-    <span class="n">tp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">t</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span><span class="mi">20</span><span class="p">,</span><span class="kc">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">])</span>
-<span class="c1">#     print(tp)</span>
-    <span class="c1"># construct arguments for piecewise2</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
-        <span class="n">interval</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">tp</span><span class="p">,</span><span class="n">tp</span> <span class="o">&lt;</span> <span class="n">t</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]))</span>
-        <span class="n">apprx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="o">/</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">t</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="o">*</span><span class="p">(</span><span class="n">tp</span><span class="p">[</span><span class="n">interval</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span><span class="o">-</span><span class="n">t</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">+</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
-    <span class="n">x_hat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">piecewise</span><span class="p">(</span><span class="n">tp</span><span class="p">,</span><span class="n">interval</span><span class="p">,</span><span class="n">apprx</span><span class="p">)</span> <span class="c1"># piecewise linear approximation</span>
-
-    <span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
-    <span class="n">ax1</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">tp</span><span class="p">,</span><span class="n">x_hat</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">f</span><span class="o">*</span><span class="n">tp</span><span class="p">),</span><span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">)</span>
-    <span class="n">ax1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
-    <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Amplitude&#39;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
-    <span class="n">ax2</span> <span class="o">=</span> <span class="n">ax1</span><span class="o">.</span><span class="n">twinx</span><span class="p">()</span>
-    <span class="n">sqe</span> <span class="o">=</span> <span class="p">(</span> <span class="n">x_hat</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">f</span><span class="o">*</span><span class="n">tp</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span>
-    <span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">tp</span><span class="p">,</span> <span class="n">sqe</span><span class="p">,</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
-    <span class="n">ax2</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="n">xmin</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span><span class="n">ymax</span><span class="o">=</span> <span class="n">sqe</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="p">)</span>
-    <span class="n">ax2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;squared error&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
-    <span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Errors with Piecewise Linear Interpolant&#39;</span><span class="p">)</span>
-
-    <span class="c1"># ax1.figure.savefig(&#39;figure_00@.png&#39;, bbox_inches=&#39;tight&#39;, dpi=300)</span>
-
-<span class="n">interact</span><span class="p">(</span><span class="n">errorPiecewise</span><span class="p">,</span> <span class="n">signal_frequency</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span> <span class="n">sampling_rate</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span> <span class="n">number_of_samples</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    
-
-
-
-  <div class="output_subarea output_widget_view ">
-    <button class="js-nbinteract-widget">
-      Loading widgets...
-    </button>
-  </div>
-
-</div>
-
-<div class="output_area">
-
-    
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>&lt;function __main__.errorPiecewise(signal_frequency=1.0, sampling_rate=1, number_of_samples=40)&gt;</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-  </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Note: I urge you to change the $fs$ sampling rate in the code above then rerun this notebook to see how these errors change with more/less sampling points.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Now, we could pursue this line of reasoning with higher-order polynomials instead of just straight lines, but this would all eventually take us to the same conclusion; namely, that all of these approximations improve as the density of sample points increases, which is the <em>exact</em> opposite of what the sampling theorem says --- there is <em>sparse</em> set of samples points that will retrieve the original function. Furthermore, we observed that the quality of the piecewise linear interpolation is sensitive to <em>where</em> the sample points are taken and the sampling theorem is so powerful that it <em>has no such requirement</em>.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Reconstruction">Reconstruction<a class="anchor-link" href="#Reconstruction">&#182;</a></h2>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Let's look at this another way by examing the Fourier Transform of a signal that is bandlimited and thus certainly satisfies the hypothesis of the sampling theorem:</p>
-<p>$ X(f) = 0$ where $ |f|&gt; W $</p>
-<p>Now, the inverse Fourier transform of this is the following:</p>
-<p>$ x(t) = \int_{-W}^W X(f) e^{j 2 \pi f t} df $</p>
-<p>We can take the $X(f)$ and expand it into a Fourier series by pretending that it is periodic with period $2 W$. Thus, we can formally write the following:</p>
-$$ X(f) = \sum_k a_k e^{ - j 2 \pi k f/(2 W) }  $$<p>we can compute the coefficients $a_k$ as</p>
-$$ a_k = \frac{1}{2 W} \int_{-W}^W X(f) e^{ j 2 \pi k f/(2 W) } df   $$<p>These coefficients bear a striking similarity to the $x(t)$ integral we just computed above. In fact, by lining up terms, we can write:</p>
-$$ a_k = \frac{1}{2 W} x \left(   t = \frac{k}{2 W} \right)  $$<p>Now, we can write out $X(f)$ in terms of this series and these $a_k$ and then invert the Fourier transform to obtain the following:</p>
-$$ x(t) = \int_{-W}^W \sum_k a_k e^{ - j 2 \pi k f/(2 W) }  e^{j 2 \pi f t} df $$<p>substitute for $a_k$</p>
-$$ x(t) = \int_{-W}^W \sum_k ( \frac{1}{2 W} x( t = \frac{k}{2 W} ) ) e^{ - j 2 \pi k f/(2 W) }  e^{j 2 \pi f t} df $$<p>switch summation and integration (usually dangerous, but OK here)</p>
-$$ x(t) = \sum_k x(t = \frac{k}{2 W}) \frac{1}{2 W}  \int_{-W}^W e^{ - j 2 \pi k f/(2 W) +j 2 \pi f t} df  $$<p>which gives finally:</p>
-$$ x(t) = \sum_k x(t = \frac{k}{2 W})  \frac{sin(\pi (k-2 t W))} {\pi (k- 2 t W)} $$<p>And this what we have been seeking! A formula that reconstructs the function from its samples. Let's try it!</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Note that since our samples are spaced at $t= k/f_s $, we'll use $  W= f_s /2 $ to line things up.</p>
-
-</div>
-</div>
-</div>
-
-  
-
-  <div class="
-      cell border-box-sizing code_cell rendered">
-    <div class="input">
-
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">samplingRate</span><span class="p">(</span><span class="n">fs</span><span class="o">=</span><span class="mf">20.0</span><span class="p">):</span>
-    <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
-    <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span> <span class="c1"># redefine this here for convenience</span>
-    <span class="n">ts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="o">+</span><span class="mi">1</span><span class="o">/</span><span class="n">fs</span><span class="p">,</span><span class="mi">1</span><span class="o">/</span><span class="n">fs</span><span class="p">)</span> <span class="c1"># sample points</span>
-    <span class="n">num_coeffs</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">ts</span><span class="p">)</span> 
-    <span class="n">sm</span><span class="o">=</span><span class="mi">0</span>
-    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">num_coeffs</span><span class="p">,</span><span class="n">num_coeffs</span><span class="p">):</span> <span class="c1"># since function is real, need both sides</span>
-        <span class="n">sm</span><span class="o">+=</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="p">(</span><span class="n">k</span><span class="o">/</span><span class="n">fs</span><span class="p">))</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sinc</span><span class="p">(</span> <span class="n">k</span> <span class="o">-</span> <span class="n">fs</span> <span class="o">*</span> <span class="n">t</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span> <span class="n">t</span><span class="p">,</span><span class="n">sm</span><span class="p">,</span><span class="s1">&#39;--&#39;</span><span class="p">,</span><span class="n">t</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">t</span><span class="p">),</span><span class="n">ts</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">ts</span><span class="p">),</span><span class="s1">&#39;o&#39;</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;sampling rate=</span><span class="si">%3.2f</span><span class="s1"> Hz&#39;</span> <span class="o">%</span> <span class="n">fs</span> <span class="p">)</span>
-
-    <span class="c1"># ax.figure.savefig(&#39;figure_00@.png&#39;, bbox_inches=&#39;tight&#39;, dpi=300)</span>
-
-<span class="n">interact</span><span class="p">(</span><span class="n">samplingRate</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">20</span><span class="p">))</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    
-
-
-
-  <div class="output_subarea output_widget_view ">
-    <button class="js-nbinteract-widget">
-      Loading widgets...
-    </button>
-  </div>
-
-</div>
-
-<div class="output_area">
-
-    
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>&lt;function __main__.samplingRate(fs=20.0)&gt;</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-  </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>We can do the same check as we did for the linear interpolant above as</p>
-
-</div>
-</div>
-</div>
-
-  
-
-  <div class="
-      cell border-box-sizing code_cell rendered">
-    <div class="input">
-
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">errorSinc</span><span class="p">(</span><span class="n">signal_frequency</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">sampling_rate</span><span class="o">=</span><span class="mf">20.0</span><span class="p">):</span>
-    <span class="n">f</span> <span class="o">=</span> <span class="n">signal_frequency</span>
-    <span class="n">fs</span> <span class="o">=</span> <span class="n">sampling_rate</span>
-    
-    <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span> <span class="c1"># redefine this here for convenience</span>
-    <span class="n">ts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="o">+</span><span class="mi">1</span><span class="o">/</span><span class="n">fs</span><span class="p">,</span><span class="mi">1</span><span class="o">/</span><span class="n">fs</span><span class="p">)</span> <span class="c1"># sample points</span>
-    <span class="n">num_coeffs</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">ts</span><span class="p">)</span> 
-    <span class="n">sm</span><span class="o">=</span><span class="mi">0</span>
-    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">num_coeffs</span><span class="p">,</span><span class="n">num_coeffs</span><span class="p">):</span> <span class="c1"># since function is real, need both sides</span>
-        <span class="n">sm</span><span class="o">+=</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="p">(</span><span class="n">k</span><span class="o">/</span><span class="n">fs</span><span class="p">))</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sinc</span><span class="p">(</span> <span class="n">k</span> <span class="o">-</span> <span class="n">fs</span> <span class="o">*</span> <span class="n">t</span><span class="p">)</span>
-    <span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
-    <span class="n">ax1</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">sm</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">f</span><span class="o">*</span><span class="n">t</span><span class="p">),</span><span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">)</span>
-    <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Amplitude&#39;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
-    <span class="n">ax2</span> <span class="o">=</span> <span class="n">ax1</span><span class="o">.</span><span class="n">twinx</span><span class="p">()</span>
-    <span class="n">sqe</span> <span class="o">=</span> <span class="p">(</span><span class="n">sm</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">f</span><span class="o">*</span><span class="n">t</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span>
-    <span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">sqe</span><span class="p">,</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
-    <span class="n">ax2</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="n">xmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">ymax</span> <span class="o">=</span> <span class="n">sqe</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
-    <span class="n">ax2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;squared error&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
-    <span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Errors with sinc Interpolant&#39;</span><span class="p">)</span>
-
-    <span class="c1"># ax1.figure.savefig(&#39;figure_00@.png&#39;, bbox_inches=&#39;tight&#39;, dpi=300)</span>
-
-<span class="n">interact</span><span class="p">(</span><span class="n">errorSinc</span><span class="p">,</span> <span class="n">signal_frequency</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span> <span class="n">sampling_rate</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    
-
-
-
-  <div class="output_subarea output_widget_view ">
-    <button class="js-nbinteract-widget">
-      Loading widgets...
-    </button>
-  </div>
-
-</div>
-
-<div class="output_area">
-
-    
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>&lt;function __main__.errorSinc(signal_frequency=1.0, sampling_rate=20.0)&gt;</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-  </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>These interpolating functions are called the "Whittaker" interpolating functions. Let's examine these functions more closely with the following code</p>
-
-</div>
-</div>
-</div>
-
-  
-
-  <div class="
-      cell border-box-sizing code_cell rendered">
-    <div class="input">
-
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">interpolation</span><span class="p">(</span><span class="n">sampling_rate</span><span class="o">=</span><span class="mf">2.0</span><span class="p">):</span>
-    <span class="n">fs</span> <span class="o">=</span> <span class="n">sampling_rate</span>
-    <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span>
-    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
-    <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span> <span class="c1"># create axis handle</span>
-    <span class="n">k</span><span class="o">=</span><span class="mi">0</span>
-<span class="c1">#     fs=2 # makes this plot easier to read</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span> <span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">sinc</span><span class="p">(</span> <span class="n">k</span> <span class="o">-</span> <span class="n">fs</span> <span class="o">*</span> <span class="n">t</span><span class="p">),</span> 
-             <span class="n">t</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">sinc</span><span class="p">(</span> <span class="n">k</span><span class="o">+</span><span class="mi">1</span> <span class="o">-</span> <span class="n">fs</span> <span class="o">*</span> <span class="n">t</span><span class="p">),</span><span class="s1">&#39;--&#39;</span><span class="p">,</span><span class="n">k</span><span class="o">/</span><span class="n">fs</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;o&#39;</span><span class="p">,(</span><span class="n">k</span><span class="p">)</span><span class="o">/</span><span class="n">fs</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="s1">&#39;o&#39;</span><span class="p">,</span>
-             <span class="n">t</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">sinc</span><span class="p">(</span> <span class="n">k</span><span class="o">-</span><span class="mi">1</span> <span class="o">-</span> <span class="n">fs</span> <span class="o">*</span> <span class="n">t</span><span class="p">),</span><span class="s1">&#39;--&#39;</span><span class="p">,</span><span class="n">k</span><span class="o">/</span><span class="n">fs</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;o&#39;</span><span class="p">,(</span><span class="o">-</span><span class="n">k</span><span class="p">)</span><span class="o">/</span><span class="n">fs</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="s1">&#39;o&#39;</span>
-    <span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">hlines</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">vlines</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="o">-.</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="s1">&#39;sample value goes here&#39;</span><span class="p">,</span>
-                <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span>
-                <span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="o">+.</span><span class="mi">1</span><span class="p">,</span><span class="mf">1.1</span><span class="p">),</span>
-                <span class="n">arrowprops</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;facecolor&#39;</span><span class="p">:</span><span class="s1">&#39;red&#39;</span><span class="p">,</span><span class="s1">&#39;shrink&#39;</span><span class="p">:</span><span class="mf">0.05</span><span class="p">},</span>
-                <span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="s1">&#39;no interference here&#39;</span><span class="p">,</span>
-                <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span>
-                <span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="o">+.</span><span class="mi">1</span><span class="p">,</span><span class="mf">0.5</span><span class="p">),</span>
-                <span class="n">arrowprops</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;facecolor&#39;</span><span class="p">:</span><span class="s1">&#39;green&#39;</span><span class="p">,</span><span class="s1">&#39;shrink&#39;</span><span class="p">:</span><span class="mf">0.05</span><span class="p">},</span>
-                <span class="p">)</span>
-
-    <span class="c1"># fig.savefig(&#39;figure_00@.png&#39;, bbox_inches=&#39;tight&#39;, dpi=300)</span>
-
-<span class="n">interact</span><span class="p">(</span><span class="n">interpolation</span><span class="p">,</span> <span class="n">sampling_rate</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    
-
-
-
-  <div class="output_subarea output_widget_view ">
-    <button class="js-nbinteract-widget">
-      Loading widgets...
-    </button>
-  </div>
-
-</div>
-
-<div class="output_area">
-
-    
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>&lt;function __main__.interpolation(sampling_rate=2.0)&gt;</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-  </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>The vertical line in the previous plot shows that where one function has a peak, the other function has a zero. This is why when you put samples at each of the peaks, they match the sampled function exactly at those points. In between those points, the crown shape of the functions fills in the missing values. Furthermore, as the figure above shows, there is no interference between the functions sitting on each of the interpolating functions because the peak of one is perfectly aligned with the zero of the others (dotted lines). Thus, the sampling theorem says that the filled-in values are drawn from the curvature of the sinc functions, not straight lines as we investigated earlier.</p>
-<p>As an illustration, the following code shows how the individual Whittaker functions (dashed lines) are assembled into the final approximation  (black-line) using the given samples (blue-dots). I urge you to play with the sampling rate to see what happens. Note the heavy use of <code>numpy</code> broadcasting in this code instead of the multiple loops we used earlier.</p>
-
-</div>
-</div>
-</div>
-
-  
-
-  <div class="
-      cell border-box-sizing code_cell rendered">
-    <div class="input">
-
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">final_approximation</span><span class="p">(</span><span class="n">sampling_rate</span><span class="o">=</span><span class="mf">5.0</span><span class="p">):</span>
-    <span class="n">fs</span> <span class="o">=</span> <span class="n">sampling_rate</span>
-    <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span>
-<span class="c1">#     fs=5.0 # sampling rate</span>
-    <span class="n">k</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">((</span><span class="n">t</span><span class="o">*</span><span class="n">fs</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">))))</span> <span class="c1"># sorted coefficient list</span>
-    <span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
-
-    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">,(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="p">(</span><span class="n">k</span><span class="p">[:,</span><span class="kc">None</span><span class="p">]</span><span class="o">/</span><span class="n">fs</span><span class="p">))</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sinc</span><span class="p">(</span><span class="n">k</span><span class="p">[:,</span><span class="kc">None</span><span class="p">]</span><span class="o">-</span><span class="n">fs</span><span class="o">*</span><span class="n">t</span><span class="p">))</span><span class="o">.</span><span class="n">T</span><span class="p">,</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="c1"># individual whittaker functions</span>
-            <span class="n">t</span><span class="p">,(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="p">(</span><span class="n">k</span><span class="p">[:,</span><span class="kc">None</span><span class="p">]</span><span class="o">/</span><span class="n">fs</span><span class="p">))</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sinc</span><span class="p">(</span><span class="n">k</span><span class="p">[:,</span><span class="kc">None</span><span class="p">]</span><span class="o">-</span><span class="n">fs</span><span class="o">*</span><span class="n">t</span><span class="p">))</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span><span class="s1">&#39;k-&#39;</span><span class="p">,</span> <span class="c1"># whittaker interpolant</span>
-         <span class="n">k</span><span class="o">/</span><span class="n">fs</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">k</span><span class="o">/</span><span class="n">fs</span><span class="p">),</span><span class="s1">&#39;ob&#39;</span><span class="p">)</span><span class="c1"># samples</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">((</span><span class="o">-</span><span class="mf">1.1</span><span class="p">,</span><span class="mf">1.1</span><span class="p">,</span><span class="o">-</span><span class="mf">1.1</span><span class="p">,</span><span class="mf">1.1</span><span class="p">));</span>
-
-    <span class="c1"># fig.savefig(&#39;figure_00@.png&#39;, bbox_inches=&#39;tight&#39;, dpi=300)</span>
-
-<span class="n">interact</span><span class="p">(</span><span class="n">final_approximation</span><span class="p">,</span> <span class="n">sampling_rate</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    
-
-
-
-  <div class="output_subarea output_widget_view ">
-    <button class="js-nbinteract-widget">
-      Loading widgets...
-    </button>
-  </div>
-
-</div>
-
-<div class="output_area">
-
-    
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>&lt;function __main__.final_approximation(sampling_rate=5.0)&gt;</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-  </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>However, if you've been following carefully, you should be somewhat uncomfortable with the second to the last plot that shows the errors in the Whittaker interpolation. Namely, <em>why are there any errors</em>? Does not the sampling theorem guarantee exact-ness which should mean no error at all? It turns out that answering this question takes us further into the implications of the sampling theorem, but that is the topic of our next post.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Summary">Summary<a class="anchor-link" href="#Summary">&#182;</a></h2>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>In this section, we started our investigation of the famous sampling theorem that is the bedrock of the entire field of signal processing and we asked if we could reverse-engineer the consquences of the sampling theorem by reconstructing a sampled function from its discrete samples. This led us to consider the famous <em>Whittaker interpolator</em>, whose proof we sketched here. However, after all this work, we came to a disturbing conclusion regarding the exact-ness of the sampling theorem that we will investigate in a subsequent posting.  In the meantime, I urge you to start at the top of notebook and play with the sampling frequency, and maybe even the sampled function and see what else you can discover about the sampling theorem.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="References">References<a class="anchor-link" href="#References">&#182;</a></h2>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<ul>
-<li><p>This is in the <a href="http://ipython.org/">IPython Notebook format</a> and was converted to HTML using <a href="https://github.com/ipython/nbconvert">nbconvert</a>.</p>
-</li>
-<li><p>See <a href="http://books.google.com/books?id=Re5SAAAAMAAJ">Signal analysis</a> for more detailed mathematical development.</p>
-</li>
-<li><p>The IPython Notebook corresponding to this post can be found <a href="https://github.com/unpingco/Python-for-Signal-Processing/blob/master/Sampling_Theorem.ipynb">here</a>.</p>
-</li>
+<h2 id="Table-of-Contents">Table of Contents<a class="anchor-link" href="#Table-of-Contents">&#182;</a></h2>
+<h4 id="1.-Introduction">1. Python for Signal processing<a class="anchor-link" href="#1.-Introduction">&#182;</a></h4>
+<ul id="content-psp">
+	<!-- <li><a href="introduction/introduction.ipynb">Introduction</a></li>
+	<li><a href="SP/1.%20Sampling_Theorem.ipynb">Sampling_Theorem.ipynb</a></li> -->
+</ul>
+
+<h4 id="1.-Introduction">1. Basics of Digital Image processing<a class="anchor-link" href="#1.-Introduction">&#182;</a></h4>
+<ul id="content-dip">
+	<!-- <li><a href="introduction/introduction.ipynb">Introduction</a></li>
+	<li><a href="SP/1.%20Sampling_Theorem.ipynb">Sampling_Theorem.ipynb</a></li> -->
 </ul>
 
 </div>
 </div>
 </div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span> 
+</pre></div>
 
+    </div>
+</div>
+</div>
 
-
-<!-- Loads nbinteract package -->
-<script src="https://unpkg.com/nbinteract-core" async></script>
-<script>
-  (function setupNbinteract() {
-    // If NbInteract hasn't loaded, wait one second and try again
-    if (window.NbInteract === undefined) {
-      setTimeout(setupNbinteract, 1000)
-      return
-    }
-
-    var interact = new window.NbInteract({
-      spec: 'nishchalk/dsp_playground/master',
-      baseUrl: 'https://mybinder.org',
-      provider: 'gh',
-    })
-    interact.prepare()
-
-    window.interact = interact
-  })()
-</script>
+</div>
     </div>
   </div>
+
+<script>
+  (async () => {
+    const response = await fetch('https://api.github.com/repos/nishchalk/dsp_playground/contents/notebooks/psp');
+    const data = await response.json();
+    let htmlString = '';
+    for (let file of data) {
+    	// let path = ${file.path}
+    	let name = file.name
+    	// console.log(file)
+    	if(!name.startsWith(".") && name.endsWith(".html")) htmlString += `<li><a href="${file.path}", target="_blank">${file.name}</a></li>`;
+    }
+    // htmlString += '</ul>';
+    // console.log(document.getElementById("content").innerHTML)
+    document.getElementById("content-psp").innerHTML += htmlString;
+  })()
+</script>
+<script>
+  (async () => {
+    const response = await fetch('https://api.github.com/repos/nishchalk/dsp_playground/contents/notebooks/dip');
+    const data = await response.json();
+    let htmlString = '';
+    for (let file of data) {
+    	// let path = ${file.path}
+    	let name = file.name
+    	// console.log(file)
+    	if(!name.startsWith(".") && name.endsWith(".html")) htmlString += `<li><a href="${file.path}", target="_blank">${file.name}</a></li>`;
+    }
+    // htmlString += '</ul>';
+    // console.log(document.getElementById("content-dip").innerHTML)
+    document.getElementById("content").innerHTML += htmlString;
+  })()
+</script>
+
+
 </body>
+
+ 
+
+
+</html>

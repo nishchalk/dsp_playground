@@ -5,7 +5,7 @@
 <head><meta charset="utf-8" />
 
 
-<title>1.Sampling_Theorem</title>
+<title>2.Sampling_Theorem_Part_2_v2</title>
 
 <style type="text/css">
     /*!
@@ -13155,21 +13155,7 @@ div#notebook {
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Investigating-The-Sampling-Theorem">Investigating The Sampling Theorem<a class="anchor-link" href="#Investigating-The-Sampling-Theorem">&#182;</a></h1>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>In this section, we investigate the implications of the sampling theorem. Here is the usual statement of the theorem from wikipedia:</p>
-<p><em>"If a function $x(t)$ contains no frequencies higher than B hertz, it is completely determined by giving its ordinates at a series of points spaced 1/(2B) seconds apart."</em></p>
-<p>Since a function $x(t)$ is a function from the real line to the real line, there are uncountably many points between any two ordinates, so sampling is a massive reduction of data since it only takes a tiny number of points to completely characterize the function. This is a powerful idea worth exploring. In fact, we have seen this idea of reducing a function to a discrete set of numbers before in Fourier series expansions where (for periodic $x(t)$)</p>
-<p>$ a_n = \frac{1}{T} \int^{T}_0 x(t) \exp (-j \omega_n t )dt $</p>
-<p>with corresponding reconstruction as:</p>
-<p>$ x(t) = \sum_k a_n \exp( j \omega_n t) $</p>
-<p>But here we are generating discrete points $a_n$ by integrating over the <strong>entire</strong> function $x(t)$, not just evaluating it at a single point. This means we are collecting information about the entire function to compute a single discrete point $a_n$, whereas with sampling we are just taking individual points in isolation.</p>
-<p>Let's come at this the other way: suppose we are given a set of samples $[x_1,x_2,..,x_N]$ and we are then told to reconstruct the function. What would we do? This is the kind of question seldom asked because we typically sample, filter, and then do something else without trying to reconstruct the function from the samples directly.</p>
-<p>Returning to our reconstruction challenge, perhaps the most natural thing to do is draw a straight line between each of the points as in linear interpolation. The next block of code takes samples of the $sin$ over a single period and draws a line between sampled ordinates.</p>
+<p>We left off with the disturbing realization that even though we are satisfied the requirements of the sampling theorem, we still have errors in our approximating formula. We can resolve this by examining the Whittaker interpolating functions which are used to reconstruct the signal  from its samples.</p>
 
 </div>
 </div>
@@ -13218,21 +13204,209 @@ div#notebook {
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">createSine</span><span class="p">(</span><span class="n">signal_frequency</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">sampling_rate</span><span class="o">=</span><span class="mf">20.0</span><span class="p">):</span>
-    <span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span>
 
-    <span class="n">f</span> <span class="o">=</span> <span class="n">signal_frequency</span>  <span class="c1"># Hz, signal frequency</span>
-    <span class="n">fs</span> <span class="o">=</span> <span class="n">sampling_rate</span> <span class="c1"># Hz, sampling rate (ie. &gt;= 2*f) </span>
-    <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="o">+</span><span class="mi">1</span><span class="o">/</span><span class="n">fs</span><span class="p">,</span><span class="mi">1</span><span class="o">/</span><span class="n">fs</span><span class="p">)</span> <span class="c1"># sample interval, symmetric for convenience later</span>
-    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">f</span><span class="o">*</span><span class="n">t</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="s1">&#39;o-&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">wittaker</span><span class="p">(</span><span class="n">sampling_frequency</span> <span class="o">=</span> <span class="mf">5.0</span><span class="p">):</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">300</span><span class="p">)</span> <span class="c1"># redefine this here for convenience</span>
+
+    <span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">subplots</span><span class="p">()</span>
+
+    <span class="n">fs</span><span class="o">=</span><span class="n">sampling_frequency</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">sinc</span><span class="p">(</span><span class="n">fs</span> <span class="o">*</span> <span class="n">t</span><span class="p">))</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="s1">&#39;This keeps going...&#39;</span><span class="p">,</span>
+                <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span>
+                <span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="o">+.</span><span class="mi">1</span><span class="p">,</span><span class="mf">0.5</span><span class="p">),</span>
+                <span class="n">arrowprops</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;facecolor&#39;</span><span class="p">:</span><span class="s1">&#39;green&#39;</span><span class="p">,</span><span class="s1">&#39;shrink&#39;</span><span class="p">:</span><span class="mf">0.05</span><span class="p">},</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="s1">&#39;... and going...&#39;</span><span class="p">,</span>
+                <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span>
+                <span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="o">+.</span><span class="mi">1</span><span class="p">,</span><span class="mf">0.5</span><span class="p">),</span>
+                <span class="n">arrowprops</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;facecolor&#39;</span><span class="p">:</span><span class="s1">&#39;green&#39;</span><span class="p">,</span><span class="s1">&#39;shrink&#39;</span><span class="p">:</span><span class="mf">0.05</span><span class="p">},</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+
+    <span class="c1"># fig.savefig(&#39;figure_00@.png&#39;, bbox_inches=&#39;tight&#39;, dpi=300)</span>
+
+<span class="n">interact</span><span class="p">(</span><span class="n">wittaker</span><span class="p">,</span> <span class="n">sampling_frequency</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    
+
+
+
+  <div class="output_subarea output_widget_view ">
+    <button class="js-nbinteract-widget">
+      Loading widgets...
+    </button>
+  </div>
+
+</div>
+
+<div class="output_area">
+
+    
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&lt;function __main__.wittaker(sampling_frequency=5.0)&gt;</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+  </div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Notice in the above plot that the function extends to infinity in either direction. This basically means that the signals we can represent must also extend to infinity in either direction which then means that we have to sample forever to exactly reconstruct the signal! So, on the one hand the sampling theorem says we only need a sparse density of samples, this result says we need to sample forever. No free lunch here!</p>
+<p>This is a deep consequence of dealing with band-limited functions which, as we have just demonstrated, are <strong>not</strong> time-limited. Now, the new question is how to get these signals into a computer with finite memory. How can we use what we have learned about the sampling theorem with these finite-duration signals?</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Approximately-Time-Limited-Functions">Approximately Time-Limited Functions<a class="anchor-link" href="#Approximately-Time-Limited-Functions">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's back off a bit and settle for functions that are <em>approximately</em>  time-limited in the sense that almost all of their energy is concentrated in a finite time-window:</p>
+$$ \int_{-\tau}^\tau |f(t)|^2 dt = E-\epsilon$$<p>where $E$ is the total energy of the signal:</p>
+$$ \int_{-\infty}^\infty |f(t)|^2 dt = E$$<p>Now, with this new definition, we can seek out functions that are band-limited but come very, very (i.e. within $\epsilon$) close to being time-limited as well. In other words, we want functions $\phi(t)$ so that they are band-limited:</p>
+$$ \phi(t) = \int_{-W}^W \Phi(\nu) e^{2 \pi j \nu t} dt $$<p>and coincidentally maximize the following:</p>
+$$ \int_{-\tau}^\tau |\phi(t) |^2 dt$$<p>After a complicated derivation,  this boils down to solving the following eigenvalue equation:</p>
+$$ \int_{-\tau}^\tau \phi(x)\frac{\sin(2\pi W(t-x))}{\pi(t-x)} dx = \lambda \phi(t)$$<p>The set of $\phi_k(t)$ eigenfunctions form the basis for arbitrary
+approximately time-limited functions. In other words, we can express</p>
+$$ f(t) = \sum_k a_k \phi_k(t) $$<p>Note that
+the $\phi_k(t)$ functions are not time-limited, but only time-concentrated in the $[-\tau,\tau]$ interval. With a change of variables, we can write this in normalized form as</p>
+$$ \int_{-1}^1 \psi(x)\frac{\sin(2\pi\sigma(t-x)/4)}{\pi(t-x)} dx = \lambda \psi(t)$$<p>where we define$\sigma = (2\tau)(2W)$ as the time-bandwidth product.The advantage of this change of variables is that $\tau$ and $W$ are expressed as a single term. Furthermore, this is the form of a classic problem where the $\psi$ functions turn out to be the angular prolate spheroidal wave functions. Let's see what these $\psi$ functions look like but solving this form of
+the eigenvalue problem</p>
+
+</div>
+</div>
+</div>
+
+  
+
+  <div class="
+      cell border-box-sizing code_cell rendered">
+    <div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">kernel</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">sigma</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="s1">&#39;convenient function to compute kernel of eigenvalue problem&#39;</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asanyarray</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">pi</span><span class="o">*</span><span class="n">where</span><span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span><span class="mf">1.0e-20</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sin</span><span class="p">(</span><span class="n">sigma</span><span class="o">/</span><span class="mi">2</span><span class="o">*</span><span class="n">y</span><span class="p">)</span><span class="o">/</span><span class="n">y</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+  </div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now, we are ready to setup the eigenvalues and see how they change with the time-bandwidth product.</p>
+
+</div>
+</div>
+</div>
+
+  
+
+  <div class="
+      cell border-box-sizing code_cell rendered">
+    <div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">nstep</span><span class="o">=</span><span class="mi">100</span>                <span class="c1"># quick and dirty integral quantization</span>
+<span class="n">t</span> <span class="o">=</span> <span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">nstep</span><span class="p">)</span> <span class="c1"># quantization of time</span>
+<span class="n">dt</span> <span class="o">=</span> <span class="n">diff</span><span class="p">(</span><span class="n">t</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>          <span class="c1"># differential step size</span>
+<span class="k">def</span> <span class="nf">eigv</span><span class="p">(</span><span class="n">sigma</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">eigvalsh</span><span class="p">(</span><span class="n">kernel</span><span class="p">(</span><span class="n">t</span><span class="o">-</span><span class="n">t</span><span class="p">[:,</span><span class="kc">None</span><span class="p">],</span><span class="n">sigma</span><span class="p">))</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="c1"># compute max eigenvalue</span>
+
+<span class="n">sigma</span> <span class="o">=</span> <span class="n">linspace</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">15</span><span class="p">)</span> <span class="c1"># range of time-bandwidth products to consider</span>
+
+<span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">subplots</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="n">dt</span><span class="o">*</span><span class="n">array</span><span class="p">([</span><span class="n">eigv</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">sigma</span><span class="p">]),</span><span class="s1">&#39;-o&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;time-bandwidth product $\sigma$&#39;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;max eigenvalue&#39;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="n">ymax</span><span class="o">=</span><span class="mf">1.01</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+
+<span class="c1"># fig.savefig(&#39;figure_00@.png&#39;, bbox_inches=&#39;tight&#39;, dpi=300)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    
+
+
+
+<div class="output_png output_subarea ">
+<img src="data:image/png;base64,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
+"
+>
+</div>
+
+</div>
+
+</div>
+</div>
+
+  </div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The largest eigenvalue is the fraction of the energy of the contained in the  interval $[-1,1]$. Thus, this means
+that for $\sigma \gt 3$, $\psi_0(t)$ is the eigenfunction that is most concentrated in that interval. Now, let's look at the this  eigenfunction under those conditions.</p>
+
+</div>
+</div>
+</div>
+
+  
+
+  <div class="
+      cell border-box-sizing code_cell rendered">
+    <div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">eigenVector</span><span class="p">(</span><span class="n">sigma</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+    <span class="n">w</span><span class="p">,</span><span class="n">v</span><span class="o">=</span><span class="n">eigh</span><span class="p">(</span><span class="n">kernel</span><span class="p">(</span><span class="n">t</span><span class="o">-</span><span class="n">t</span><span class="p">[:,</span><span class="kc">None</span><span class="p">],</span><span class="n">sigma</span><span class="p">))</span>
+    <span class="n">maxv</span><span class="o">=</span><span class="n">v</span><span class="p">[:,</span> <span class="n">w</span><span class="o">.</span><span class="n">argmax</span><span class="p">()]</span>
+    <span class="n">fig</span><span class="p">,</span><span class="n">ax</span><span class="o">=</span><span class="n">subplots</span><span class="p">()</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">maxv</span><span class="p">)</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;amplitude&#39;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;$\psi_0(t)$&#39;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">22</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Eigenvector corresponding to e-value=</span><span class="si">%3.4f</span><span class="s1">;$\sigma$=</span><span class="si">%3.2f</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">w</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">*</span><span class="n">dt</span><span class="p">,</span><span class="n">sigma</span><span class="p">))</span>
 
     <span class="c1"># fig.savefig(&#39;figure_00@.png&#39;, bbox_inches=&#39;tight&#39;, dpi=300)</span>
-
-<span class="c1"># plt.figure()</span>
-<span class="n">interact</span><span class="p">(</span><span class="n">createSine</span><span class="p">,</span> <span class="n">signal_frequency</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span> <span class="n">sampling_rate</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">40</span><span class="p">))</span>
+    
+<span class="n">interact</span><span class="p">(</span><span class="n">eigenVector</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mf">0.1</span><span class="p">))</span>
 </pre></div>
 
     </div>
@@ -13264,7 +13438,7 @@ div#notebook {
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>&lt;function __main__.createSine(signal_frequency=1.0, sampling_rate=20.0)&gt;</pre>
+<pre>&lt;function __main__.eigenVector(sigma=3)&gt;</pre>
 </div>
 
 </div>
@@ -13275,7 +13449,9 @@ div#notebook {
   </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>In this plot, notice how near the extremes of the $sin$ at $t=1/(4f)$ and $t=3/(4 f)$, we are taking the same density of points since the sampling theorem makes no requirement on <em>where</em> we should sample as long as we sample at a regular intervals. This means that on the up and down slopes of the $sin$, which are obviously linear-looking and where a linear approximation is a good one, we are taking the same density of samples as near the curvy peaks. Here's a bit of code that zooms in to the first peak to illustrate this.</p>
+<p>Note that we'll see this shape again when we take up window functions.</p>
+<p>What does this all mean? By framing our problem this way, we made a connection between the quality of our reconstruction via the Whittaker interpolant and the time-bandwidth product. Up until now, we did not have a concrete way of relating limitations in time to limitations in frequency. Now that we know how to use the time-bandwidth product, let's go back to the original formulation with the separate  $\tau$ and $W$ terms as in the following:</p>
+$$ \int_{-\tau}^\tau \phi(x)\frac{\sin(2\pi W (t-x))}{\pi(t-x)} dx = \lambda \phi(t)$$<p>and then re-solve the eigenvalue problem.</p>
 
 </div>
 </div>
@@ -13289,455 +13465,32 @@ div#notebook {
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">pieceWise</span><span class="p">(</span><span class="n">signal_frequency</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">sampling_rate</span><span class="o">=</span><span class="mf">20.0</span><span class="p">):</span>
-    <span class="n">f</span> <span class="o">=</span> <span class="n">signal_frequency</span>
-    <span class="n">fs</span> <span class="o">=</span> <span class="n">sampling_rate</span>
-    <span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
-    <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="o">+</span><span class="mi">1</span><span class="o">/</span><span class="n">fs</span><span class="p">,</span><span class="mi">1</span><span class="o">/</span><span class="n">fs</span><span class="p">)</span> <span class="c1"># sample interval, symmetric</span>
-    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">f</span><span class="o">*</span><span class="n">t</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="s1">&#39;o-&#39;</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span> <span class="n">xmin</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="n">f</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="o">/</span><span class="n">fs</span><span class="o">*</span><span class="mi">3</span><span class="p">,</span> <span class="n">xmax</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="n">f</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="o">/</span><span class="n">fs</span><span class="o">*</span><span class="mi">3</span><span class="p">,</span> <span class="n">ymin</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">ymax</span> <span class="o">=</span> <span class="mf">1.1</span> <span class="p">)</span>
-    <span class="c1"># fig.savefig(&#39;figure_00@.png&#39;, bbox_inches=&#39;tight&#39;, dpi=300)</span>
-    
-<span class="n">interact</span><span class="p">(</span><span class="n">pieceWise</span><span class="p">,</span> <span class="n">signal_frequency</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span> <span class="n">sampling_rate</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">40</span><span class="p">))</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    
-
-
-
-  <div class="output_subarea output_widget_view ">
-    <button class="js-nbinteract-widget">
-      Loading widgets...
-    </button>
-  </div>
-
-</div>
-
-<div class="output_area">
-
-    
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>&lt;function __main__.pieceWise(signal_frequency=1.0, sampling_rate=20.0)&gt;</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-  </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>To drive this point home (and create some cool matplotlib plots), we can construct the piecewise linear interpolant and compare the quality of the approximation using <code>numpy.piecewise</code>:</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Now, we can examine the squared errors in the interpolant. The following snippet plots the $sin$ and with the filled-in error of the linear interpolant.</p>
-
-</div>
-</div>
-</div>
-
-  
-
-  <div class="
-      cell border-box-sizing code_cell rendered">
-    <div class="input">
-
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">errorPiecewise</span><span class="p">(</span><span class="n">signal_frequency</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">sampling_rate</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">number_of_samples</span><span class="o">=</span><span class="mi">40</span><span class="p">):</span>
-    <span class="n">f</span> <span class="o">=</span> <span class="n">signal_frequency</span>
-    <span class="n">fs</span> <span class="o">=</span> <span class="n">sampling_rate</span>
-    <span class="n">l</span> <span class="o">=</span> <span class="n">number_of_samples</span>
-    <span class="n">t</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="n">fs</span><span class="p">,</span><span class="n">fs</span><span class="p">,</span><span class="n">l</span><span class="p">)</span> <span class="c1"># redefine this here for convenience</span>
-    <span class="n">interval</span><span class="o">=</span><span class="p">[]</span> <span class="c1"># piecewise domains</span>
-    <span class="n">apprx</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># line on domains</span>
-    <span class="c1"># build up points *evenly* inside of intervals</span>
-<span class="c1">#     print(t)</span>
-    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">f</span><span class="o">*</span><span class="n">t</span><span class="p">)</span>
-    <span class="n">tp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">t</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span><span class="mi">20</span><span class="p">,</span><span class="kc">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">])</span>
-<span class="c1">#     print(tp)</span>
-    <span class="c1"># construct arguments for piecewise2</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
-        <span class="n">interval</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">tp</span><span class="p">,</span><span class="n">tp</span> <span class="o">&lt;</span> <span class="n">t</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]))</span>
-        <span class="n">apprx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="o">/</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">t</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="o">*</span><span class="p">(</span><span class="n">tp</span><span class="p">[</span><span class="n">interval</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span><span class="o">-</span><span class="n">t</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">+</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
-    <span class="n">x_hat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">piecewise</span><span class="p">(</span><span class="n">tp</span><span class="p">,</span><span class="n">interval</span><span class="p">,</span><span class="n">apprx</span><span class="p">)</span> <span class="c1"># piecewise linear approximation</span>
-
-    <span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
-    <span class="n">ax1</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">tp</span><span class="p">,</span><span class="n">x_hat</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">f</span><span class="o">*</span><span class="n">tp</span><span class="p">),</span><span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">)</span>
-    <span class="n">ax1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
-    <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Amplitude&#39;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
-    <span class="n">ax2</span> <span class="o">=</span> <span class="n">ax1</span><span class="o">.</span><span class="n">twinx</span><span class="p">()</span>
-    <span class="n">sqe</span> <span class="o">=</span> <span class="p">(</span> <span class="n">x_hat</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">f</span><span class="o">*</span><span class="n">tp</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span>
-    <span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">tp</span><span class="p">,</span> <span class="n">sqe</span><span class="p">,</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
-    <span class="n">ax2</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="n">xmin</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span><span class="n">ymax</span><span class="o">=</span> <span class="n">sqe</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="p">)</span>
-    <span class="n">ax2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;squared error&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
-    <span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Errors with Piecewise Linear Interpolant&#39;</span><span class="p">)</span>
-
-    <span class="c1"># ax1.figure.savefig(&#39;figure_00@.png&#39;, bbox_inches=&#39;tight&#39;, dpi=300)</span>
-
-<span class="n">interact</span><span class="p">(</span><span class="n">errorPiecewise</span><span class="p">,</span> <span class="n">signal_frequency</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span> <span class="n">sampling_rate</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span> <span class="n">number_of_samples</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    
-
-
-
-  <div class="output_subarea output_widget_view ">
-    <button class="js-nbinteract-widget">
-      Loading widgets...
-    </button>
-  </div>
-
-</div>
-
-<div class="output_area">
-
-    
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>&lt;function __main__.errorPiecewise(signal_frequency=1.0, sampling_rate=1, number_of_samples=40)&gt;</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-  </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Note: I urge you to change the $fs$ sampling rate in the code above then rerun this notebook to see how these errors change with more/less sampling points.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Now, we could pursue this line of reasoning with higher-order polynomials instead of just straight lines, but this would all eventually take us to the same conclusion; namely, that all of these approximations improve as the density of sample points increases, which is the <em>exact</em> opposite of what the sampling theorem says --- there is <em>sparse</em> set of samples points that will retrieve the original function. Furthermore, we observed that the quality of the piecewise linear interpolation is sensitive to <em>where</em> the sample points are taken and the sampling theorem is so powerful that it <em>has no such requirement</em>.</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Reconstruction">Reconstruction<a class="anchor-link" href="#Reconstruction">&#182;</a></h2>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Let's look at this another way by examing the Fourier Transform of a signal that is bandlimited and thus certainly satisfies the hypothesis of the sampling theorem:</p>
-<p>$ X(f) = 0$ where $ |f|&gt; W $</p>
-<p>Now, the inverse Fourier transform of this is the following:</p>
-<p>$ x(t) = \int_{-W}^W X(f) e^{j 2 \pi f t} df $</p>
-<p>We can take the $X(f)$ and expand it into a Fourier series by pretending that it is periodic with period $2 W$. Thus, we can formally write the following:</p>
-$$ X(f) = \sum_k a_k e^{ - j 2 \pi k f/(2 W) }  $$<p>we can compute the coefficients $a_k$ as</p>
-$$ a_k = \frac{1}{2 W} \int_{-W}^W X(f) e^{ j 2 \pi k f/(2 W) } df   $$<p>These coefficients bear a striking similarity to the $x(t)$ integral we just computed above. In fact, by lining up terms, we can write:</p>
-$$ a_k = \frac{1}{2 W} x \left(   t = \frac{k}{2 W} \right)  $$<p>Now, we can write out $X(f)$ in terms of this series and these $a_k$ and then invert the Fourier transform to obtain the following:</p>
-$$ x(t) = \int_{-W}^W \sum_k a_k e^{ - j 2 \pi k f/(2 W) }  e^{j 2 \pi f t} df $$<p>substitute for $a_k$</p>
-$$ x(t) = \int_{-W}^W \sum_k ( \frac{1}{2 W} x( t = \frac{k}{2 W} ) ) e^{ - j 2 \pi k f/(2 W) }  e^{j 2 \pi f t} df $$<p>switch summation and integration (usually dangerous, but OK here)</p>
-$$ x(t) = \sum_k x(t = \frac{k}{2 W}) \frac{1}{2 W}  \int_{-W}^W e^{ - j 2 \pi k f/(2 W) +j 2 \pi f t} df  $$<p>which gives finally:</p>
-$$ x(t) = \sum_k x(t = \frac{k}{2 W})  \frac{sin(\pi (k-2 t W))} {\pi (k- 2 t W)} $$<p>And this what we have been seeking! A formula that reconstructs the function from its samples. Let's try it!</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Note that since our samples are spaced at $t= k/f_s $, we'll use $  W= f_s /2 $ to line things up.</p>
-
-</div>
-</div>
-</div>
-
-  
-
-  <div class="
-      cell border-box-sizing code_cell rendered">
-    <div class="input">
-
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">samplingRate</span><span class="p">(</span><span class="n">fs</span><span class="o">=</span><span class="mf">20.0</span><span class="p">):</span>
-    <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
-    <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span> <span class="c1"># redefine this here for convenience</span>
-    <span class="n">ts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="o">+</span><span class="mi">1</span><span class="o">/</span><span class="n">fs</span><span class="p">,</span><span class="mi">1</span><span class="o">/</span><span class="n">fs</span><span class="p">)</span> <span class="c1"># sample points</span>
-    <span class="n">num_coeffs</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">ts</span><span class="p">)</span> 
-    <span class="n">sm</span><span class="o">=</span><span class="mi">0</span>
-    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">num_coeffs</span><span class="p">,</span><span class="n">num_coeffs</span><span class="p">):</span> <span class="c1"># since function is real, need both sides</span>
-        <span class="n">sm</span><span class="o">+=</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="p">(</span><span class="n">k</span><span class="o">/</span><span class="n">fs</span><span class="p">))</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sinc</span><span class="p">(</span> <span class="n">k</span> <span class="o">-</span> <span class="n">fs</span> <span class="o">*</span> <span class="n">t</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span> <span class="n">t</span><span class="p">,</span><span class="n">sm</span><span class="p">,</span><span class="s1">&#39;--&#39;</span><span class="p">,</span><span class="n">t</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">t</span><span class="p">),</span><span class="n">ts</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">ts</span><span class="p">),</span><span class="s1">&#39;o&#39;</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;sampling rate=</span><span class="si">%3.2f</span><span class="s1"> Hz&#39;</span> <span class="o">%</span> <span class="n">fs</span> <span class="p">)</span>
-
-    <span class="c1"># ax.figure.savefig(&#39;figure_00@.png&#39;, bbox_inches=&#39;tight&#39;, dpi=300)</span>
-
-<span class="n">interact</span><span class="p">(</span><span class="n">samplingRate</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">20</span><span class="p">))</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    
-
-
-
-  <div class="output_subarea output_widget_view ">
-    <button class="js-nbinteract-widget">
-      Loading widgets...
-    </button>
-  </div>
-
-</div>
-
-<div class="output_area">
-
-    
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>&lt;function __main__.samplingRate(fs=20.0)&gt;</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-  </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>We can do the same check as we did for the linear interpolant above as</p>
-
-</div>
-</div>
-</div>
-
-  
-
-  <div class="
-      cell border-box-sizing code_cell rendered">
-    <div class="input">
-
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">errorSinc</span><span class="p">(</span><span class="n">signal_frequency</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">sampling_rate</span><span class="o">=</span><span class="mf">20.0</span><span class="p">):</span>
-    <span class="n">f</span> <span class="o">=</span> <span class="n">signal_frequency</span>
-    <span class="n">fs</span> <span class="o">=</span> <span class="n">sampling_rate</span>
-    
-    <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span> <span class="c1"># redefine this here for convenience</span>
-    <span class="n">ts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="o">+</span><span class="mi">1</span><span class="o">/</span><span class="n">fs</span><span class="p">,</span><span class="mi">1</span><span class="o">/</span><span class="n">fs</span><span class="p">)</span> <span class="c1"># sample points</span>
-    <span class="n">num_coeffs</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">ts</span><span class="p">)</span> 
-    <span class="n">sm</span><span class="o">=</span><span class="mi">0</span>
-    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">num_coeffs</span><span class="p">,</span><span class="n">num_coeffs</span><span class="p">):</span> <span class="c1"># since function is real, need both sides</span>
-        <span class="n">sm</span><span class="o">+=</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="p">(</span><span class="n">k</span><span class="o">/</span><span class="n">fs</span><span class="p">))</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sinc</span><span class="p">(</span> <span class="n">k</span> <span class="o">-</span> <span class="n">fs</span> <span class="o">*</span> <span class="n">t</span><span class="p">)</span>
-    <span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
-    <span class="n">ax1</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">sm</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">f</span><span class="o">*</span><span class="n">t</span><span class="p">),</span><span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">)</span>
-    <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Amplitude&#39;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
-    <span class="n">ax2</span> <span class="o">=</span> <span class="n">ax1</span><span class="o">.</span><span class="n">twinx</span><span class="p">()</span>
-    <span class="n">sqe</span> <span class="o">=</span> <span class="p">(</span><span class="n">sm</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">f</span><span class="o">*</span><span class="n">t</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span>
-    <span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">sqe</span><span class="p">,</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
-    <span class="n">ax2</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="n">xmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">ymax</span> <span class="o">=</span> <span class="n">sqe</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
-    <span class="n">ax2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;squared error&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
-    <span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Errors with sinc Interpolant&#39;</span><span class="p">)</span>
-
-    <span class="c1"># ax1.figure.savefig(&#39;figure_00@.png&#39;, bbox_inches=&#39;tight&#39;, dpi=300)</span>
-
-<span class="n">interact</span><span class="p">(</span><span class="n">errorSinc</span><span class="p">,</span> <span class="n">signal_frequency</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span> <span class="n">sampling_rate</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    
-
-
-
-  <div class="output_subarea output_widget_view ">
-    <button class="js-nbinteract-widget">
-      Loading widgets...
-    </button>
-  </div>
-
-</div>
-
-<div class="output_area">
-
-    
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>&lt;function __main__.errorSinc(signal_frequency=1.0, sampling_rate=20.0)&gt;</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-  </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>These interpolating functions are called the "Whittaker" interpolating functions. Let's examine these functions more closely with the following code</p>
-
-</div>
-</div>
-</div>
-
-  
-
-  <div class="
-      cell border-box-sizing code_cell rendered">
-    <div class="input">
-
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">interpolation</span><span class="p">(</span><span class="n">sampling_rate</span><span class="o">=</span><span class="mf">2.0</span><span class="p">):</span>
-    <span class="n">fs</span> <span class="o">=</span> <span class="n">sampling_rate</span>
-    <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span>
-    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
-    <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span> <span class="c1"># create axis handle</span>
-    <span class="n">k</span><span class="o">=</span><span class="mi">0</span>
-<span class="c1">#     fs=2 # makes this plot easier to read</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span> <span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">sinc</span><span class="p">(</span> <span class="n">k</span> <span class="o">-</span> <span class="n">fs</span> <span class="o">*</span> <span class="n">t</span><span class="p">),</span> 
-             <span class="n">t</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">sinc</span><span class="p">(</span> <span class="n">k</span><span class="o">+</span><span class="mi">1</span> <span class="o">-</span> <span class="n">fs</span> <span class="o">*</span> <span class="n">t</span><span class="p">),</span><span class="s1">&#39;--&#39;</span><span class="p">,</span><span class="n">k</span><span class="o">/</span><span class="n">fs</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;o&#39;</span><span class="p">,(</span><span class="n">k</span><span class="p">)</span><span class="o">/</span><span class="n">fs</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="s1">&#39;o&#39;</span><span class="p">,</span>
-             <span class="n">t</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">sinc</span><span class="p">(</span> <span class="n">k</span><span class="o">-</span><span class="mi">1</span> <span class="o">-</span> <span class="n">fs</span> <span class="o">*</span> <span class="n">t</span><span class="p">),</span><span class="s1">&#39;--&#39;</span><span class="p">,</span><span class="n">k</span><span class="o">/</span><span class="n">fs</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;o&#39;</span><span class="p">,(</span><span class="o">-</span><span class="n">k</span><span class="p">)</span><span class="o">/</span><span class="n">fs</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="s1">&#39;o&#39;</span>
-    <span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">hlines</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">vlines</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="o">-.</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="s1">&#39;sample value goes here&#39;</span><span class="p">,</span>
-                <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span>
-                <span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="o">+.</span><span class="mi">1</span><span class="p">,</span><span class="mf">1.1</span><span class="p">),</span>
-                <span class="n">arrowprops</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;facecolor&#39;</span><span class="p">:</span><span class="s1">&#39;red&#39;</span><span class="p">,</span><span class="s1">&#39;shrink&#39;</span><span class="p">:</span><span class="mf">0.05</span><span class="p">},</span>
-                <span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="s1">&#39;no interference here&#39;</span><span class="p">,</span>
-                <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span>
-                <span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="o">+.</span><span class="mi">1</span><span class="p">,</span><span class="mf">0.5</span><span class="p">),</span>
-                <span class="n">arrowprops</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;facecolor&#39;</span><span class="p">:</span><span class="s1">&#39;green&#39;</span><span class="p">,</span><span class="s1">&#39;shrink&#39;</span><span class="p">:</span><span class="mf">0.05</span><span class="p">},</span>
-                <span class="p">)</span>
-
-    <span class="c1"># fig.savefig(&#39;figure_00@.png&#39;, bbox_inches=&#39;tight&#39;, dpi=300)</span>
-
-<span class="n">interact</span><span class="p">(</span><span class="n">interpolation</span><span class="p">,</span> <span class="n">sampling_rate</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    
-
-
-
-  <div class="output_subarea output_widget_view ">
-    <button class="js-nbinteract-widget">
-      Loading widgets...
-    </button>
-  </div>
-
-</div>
-
-<div class="output_area">
-
-    
-
-
-
-<div class="output_text output_subarea output_execute_result">
-<pre>&lt;function __main__.interpolation(sampling_rate=2.0)&gt;</pre>
-</div>
-
-</div>
-
-</div>
-</div>
-
-  </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>The vertical line in the previous plot shows that where one function has a peak, the other function has a zero. This is why when you put samples at each of the peaks, they match the sampled function exactly at those points. In between those points, the crown shape of the functions fills in the missing values. Furthermore, as the figure above shows, there is no interference between the functions sitting on each of the interpolating functions because the peak of one is perfectly aligned with the zero of the others (dotted lines). Thus, the sampling theorem says that the filled-in values are drawn from the curvature of the sinc functions, not straight lines as we investigated earlier.</p>
-<p>As an illustration, the following code shows how the individual Whittaker functions (dashed lines) are assembled into the final approximation  (black-line) using the given samples (blue-dots). I urge you to play with the sampling rate to see what happens. Note the heavy use of <code>numpy</code> broadcasting in this code instead of the multiple loops we used earlier.</p>
-
-</div>
-</div>
-</div>
-
-  
-
-  <div class="
-      cell border-box-sizing code_cell rendered">
-    <div class="input">
-
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">final_approximation</span><span class="p">(</span><span class="n">sampling_rate</span><span class="o">=</span><span class="mf">5.0</span><span class="p">):</span>
-    <span class="n">fs</span> <span class="o">=</span> <span class="n">sampling_rate</span>
-    <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span>
-<span class="c1">#     fs=5.0 # sampling rate</span>
-    <span class="n">k</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">((</span><span class="n">t</span><span class="o">*</span><span class="n">fs</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">))))</span> <span class="c1"># sorted coefficient list</span>
-    <span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
-
-    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">,(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="p">(</span><span class="n">k</span><span class="p">[:,</span><span class="kc">None</span><span class="p">]</span><span class="o">/</span><span class="n">fs</span><span class="p">))</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sinc</span><span class="p">(</span><span class="n">k</span><span class="p">[:,</span><span class="kc">None</span><span class="p">]</span><span class="o">-</span><span class="n">fs</span><span class="o">*</span><span class="n">t</span><span class="p">))</span><span class="o">.</span><span class="n">T</span><span class="p">,</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="c1"># individual whittaker functions</span>
-            <span class="n">t</span><span class="p">,(</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="p">(</span><span class="n">k</span><span class="p">[:,</span><span class="kc">None</span><span class="p">]</span><span class="o">/</span><span class="n">fs</span><span class="p">))</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sinc</span><span class="p">(</span><span class="n">k</span><span class="p">[:,</span><span class="kc">None</span><span class="p">]</span><span class="o">-</span><span class="n">fs</span><span class="o">*</span><span class="n">t</span><span class="p">))</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span><span class="s1">&#39;k-&#39;</span><span class="p">,</span> <span class="c1"># whittaker interpolant</span>
-         <span class="n">k</span><span class="o">/</span><span class="n">fs</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">k</span><span class="o">/</span><span class="n">fs</span><span class="p">),</span><span class="s1">&#39;ob&#39;</span><span class="p">)</span><span class="c1"># samples</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">kernel_tau</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">W</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="s1">&#39;convenient function to compute kernel of eigenvalue problem&#39;</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asanyarray</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">pi</span><span class="o">*</span><span class="n">where</span><span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span><span class="mf">1.0e-20</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sin</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">W</span><span class="o">*</span><span class="n">y</span><span class="p">)</span><span class="o">/</span><span class="n">y</span>
+
+<span class="k">def</span> <span class="nf">eigenValue</span><span class="p">(</span><span class="n">sigma</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+    <span class="n">nstep</span><span class="o">=</span><span class="mi">300</span>                <span class="c1"># quick and dirty integral quantization</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">nstep</span><span class="p">)</span> <span class="c1"># quantization of time</span>
+    <span class="n">tt</span> <span class="o">=</span> <span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="n">nstep</span><span class="p">)</span><span class="c1"># extend interval</span>
+
+<span class="c1">#     sigma = 5</span>
+    <span class="n">W</span> <span class="o">=</span> <span class="n">sigma</span><span class="o">/</span><span class="mf">2.</span><span class="o">/</span><span class="mf">2.</span><span class="o">/</span><span class="n">t</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+
+    <span class="n">w</span><span class="p">,</span><span class="n">v</span><span class="o">=</span><span class="n">eig</span><span class="p">(</span><span class="n">kernel_tau</span><span class="p">(</span><span class="n">t</span><span class="o">-</span><span class="n">tt</span><span class="p">[:,</span><span class="kc">None</span><span class="p">],</span><span class="n">W</span><span class="p">))</span>
+    <span class="n">ii</span> <span class="o">=</span> <span class="n">argsort</span><span class="p">(</span><span class="n">w</span><span class="o">.</span><span class="n">real</span><span class="p">)</span> 
+    <span class="n">maxv</span><span class="o">=</span><span class="n">v</span><span class="p">[:,</span> <span class="n">w</span><span class="o">.</span><span class="n">real</span><span class="o">.</span><span class="n">argmax</span><span class="p">()]</span><span class="o">.</span><span class="n">real</span>
+    <span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">subplots</span><span class="p">()</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">tt</span><span class="p">,</span><span class="n">maxv</span><span class="o">/</span><span class="n">sign</span><span class="p">(</span><span class="n">maxv</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">nstep</span><span class="o">/</span><span class="mi">2</span><span class="p">)]))</span> <span class="c1"># normalize to keep orientation upwards</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">((</span><span class="o">-</span><span class="mf">1.1</span><span class="p">,</span><span class="mf">1.1</span><span class="p">,</span><span class="o">-</span><span class="mf">1.1</span><span class="p">,</span><span class="mf">1.1</span><span class="p">));</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$\phi_</span><span class="si">{max}</span><span class="s1">(t)$&#39;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;$\sigma=</span><span class="si">%d</span><span class="s1">$&#39;</span><span class="o">%</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">W</span><span class="o">*</span><span class="mi">2</span><span class="o">*</span><span class="n">t</span><span class="o">.</span><span class="n">max</span><span class="p">()),</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
 
     <span class="c1"># fig.savefig(&#39;figure_00@.png&#39;, bbox_inches=&#39;tight&#39;, dpi=300)</span>
 
-<span class="n">interact</span><span class="p">(</span><span class="n">final_approximation</span><span class="p">,</span> <span class="n">sampling_rate</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
+<span class="n">interact</span><span class="p">(</span><span class="n">eigenValue</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
 </pre></div>
 
     </div>
@@ -13769,7 +13522,7 @@ $$ x(t) = \sum_k x(t = \frac{k}{2 W})  \frac{sin(\pi (k-2 t W))} {\pi (k- 2 t W)
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>&lt;function __main__.final_approximation(sampling_rate=5.0)&gt;</pre>
+<pre>&lt;function __main__.eigenValue(sigma=5)&gt;</pre>
 </div>
 
 </div>
@@ -13780,7 +13533,8 @@ $$ x(t) = \sum_k x(t = \frac{k}{2 W})  \frac{sin(\pi (k-2 t W))} {\pi (k- 2 t W)
   </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>However, if you've been following carefully, you should be somewhat uncomfortable with the second to the last plot that shows the errors in the Whittaker interpolation. Namely, <em>why are there any errors</em>? Does not the sampling theorem guarantee exact-ness which should mean no error at all? It turns out that answering this question takes us further into the implications of the sampling theorem, but that is the topic of our next post.</p>
+<p>$\DeclareMathOperator{\sinc}{sinc}$</p>
+<p>This looks suspicously like the $\sinc$ function. In fact, in the limit as $\sigma \rightarrow \infty$, the  eigenfunctions devolve into time-shifted versions of the $\sinc$ function. These are the same functions used in the Whittaker interpolant. Now we have a way to justify the interpolant by appealing to large $\sigma$ values.</p>
 
 </div>
 </div>
@@ -13793,7 +13547,8 @@ $$ x(t) = \sum_k x(t = \frac{k}{2 W})  \frac{sin(\pi (k-2 t W))} {\pi (k- 2 t W)
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>In this section, we started our investigation of the famous sampling theorem that is the bedrock of the entire field of signal processing and we asked if we could reverse-engineer the consquences of the sampling theorem by reconstructing a sampled function from its discrete samples. This led us to consider the famous <em>Whittaker interpolator</em>, whose proof we sketched here. However, after all this work, we came to a disturbing conclusion regarding the exact-ness of the sampling theorem that we will investigate in a subsequent posting.  In the meantime, I urge you to start at the top of notebook and play with the sampling frequency, and maybe even the sampled function and see what else you can discover about the sampling theorem.</p>
+<p>In this section, at first blush, it may look like we accomplished nothing. We started out investigating why is it that we have some residual error in the reconstruction formula using the Whittaker approximation functions. Then, we recognized that we cannot have signals that are simultaneously time-limited and band-limited. This realization drove us to investigate "approximately" time-limited functions. Through carefully examining the resulting eigenvalue problem, we determined the time-bandwidth conditions under which the
+Whittaker interopolant is asymptotically valid. As you can imagine, there is much more to this story and many powerful theorems place bounds on the quality and dimensionality of this reconstruction, but for us, the qualifying concept of time-bandwidth product is enough for now.</p>
 
 </div>
 </div>
@@ -13811,13 +13566,47 @@ $$ x(t) = \sum_k x(t = \frac{k}{2 W})  \frac{sin(\pi (k-2 t W))} {\pi (k- 2 t W)
 </li>
 <li><p>See <a href="http://books.google.com/books?id=Re5SAAAAMAAJ">Signal analysis</a> for more detailed mathematical development.</p>
 </li>
-<li><p>The IPython Notebook corresponding to this post can be found <a href="https://github.com/unpingco/Python-for-Signal-Processing/blob/master/Sampling_Theorem.ipynb">here</a>.</p>
+<li><p>The IPython notebook corresponding to this post can be found <a href="https://github.com/unpingco/Python-for-Signal-Processing/blob/master/Sampling_Theorem_Part_2.ipynb">here</a>.</p>
 </li>
 </ul>
 
 </div>
 </div>
 </div>
+
+  
+
+  <div class="
+      cell border-box-sizing code_cell rendered">
+    <div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">%</span><span class="k">qtconsole</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+  </div>
+
+  
+
+  <div class="
+      cell border-box-sizing code_cell rendered">
+    <div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span> 
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+  </div>
 
 
 
