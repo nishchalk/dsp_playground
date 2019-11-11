@@ -3,3 +3,4 @@ ipywidgets
 nbinteract
 matplotlib
 scipy
+opencv-python
